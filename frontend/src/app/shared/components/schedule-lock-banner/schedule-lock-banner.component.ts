@@ -1,0 +1,3 @@
+import { Component, Input } from '@angular/core';
+@Component({selector:'app-schedule-lock-banner',standalone:true,template:`<aside class="banner"><span>🌙</span><div><strong>{{ titulo }}</strong><p>{{ mensaje }}</p></div></aside>`,styles:[`.banner{display:flex;gap:1rem;align-items:center;padding:1rem 1.2rem;background:#e9f7f1;border:1px solid #bfe9d5;border-radius:14px;color:#173b45}.banner>span{font-size:1.5rem}.banner p{margin:.25rem 0 0;color:#557078;font-size:.85rem}.banner strong{font-size:.95rem}`]})
+export class ScheduleLockBannerComponent { @Input() titulo = 'Modo desconexión activo'; @Input() mensaje = 'Tu celular está en pausa hasta las 6:00 a. m.'; }

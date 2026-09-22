@@ -1,0 +1,5 @@
+import { Component, Input } from '@angular/core';
+// Angular Material: MatProgressBarModule
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+@Component({selector:'app-goal-progress-ring',standalone:true,imports:[MatProgressBarModule],template:`<div class="ring" [style.--progress]="progreso + '%'"><div><strong>{{ progreso }}%</strong><small>meta diaria</small></div></div><mat-progress-bar class="sr-progress" mode="determinate" [value]="progreso" aria-label="Progreso de la meta diaria" />`,styles:[`.ring{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#22b573 var(--progress),#e6f1ed 0)}.ring>div{width:82px;height:82px;border-radius:50%;background:#fff;display:grid;place-content:center;text-align:center}.ring strong,.ring small{display:block}.ring strong{font-size:1.3rem;color:#173b45}.ring small{font-size:.7rem;color:#71868c}.sr-progress{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}`]})
+export class GoalProgressRingComponent { @Input() progreso = 0; }

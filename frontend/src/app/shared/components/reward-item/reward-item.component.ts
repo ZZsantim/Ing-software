@@ -1,0 +1,5 @@
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+// Angular Material: MatDialogModule
+import { MatDialogModule } from '@angular/material/dialog';
+@Component({selector:'app-reward-item',standalone:true,imports:[MatDialogModule],template:`<article class="reward"><span class="emoji">{{ emoji }}</span><div class="info"><b>{{ nombre }}</b><small>{{ costo }} monedas</small></div><button (click)="canjear.emit()" [disabled]="!disponible">Canjear</button></article>`,styles:[`.reward{display:flex;align-items:center;gap:.8rem;padding:.8rem 0;border-bottom:1px solid #edf1f2}.emoji{font-size:1.8rem}.info{flex:1}.info b,.info small{display:block}.info small{color:#9b7411;font-size:.75rem;margin-top:.2rem}.reward button{border:1px solid #22b573;background:#fff;color:#168554;border-radius:8px;padding:.5rem .7rem;cursor:pointer;font-weight:700}.reward button:disabled{opacity:.4;cursor:not-allowed}`]})
+export class RewardItemComponent { @Input() emoji='🎁'; @Input() nombre='Recompensa'; @Input() costo=10; @Input() disponible=true; @Output() canjear = new EventEmitter<void>(); }
