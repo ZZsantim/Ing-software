@@ -1,0 +1,36 @@
+<div class="col-11 col-md-6 col-lg-5 mx-auto mt-4 p-3 shadow rounded bg-white">
+<h1 class="text-primary text-center fs-2 mb-2">Control de laboratorio</h1>
+
+<h2 class="text-secondary text-center fs-4 mb-2">{{ laboratorio }}</h2>
+
+<p class="text-center mb-2">Capacidad máxima: {{ capacidad }}</p>
+
+<p class="text-center mb-2">Estudiantes actualmente: {{ estudiantes }}</p>
+
+<p class="text-center mb-2">{{ advertencia }}</p>
+<p class="text-center mb-2">Ocupación: {{ porcentajeOcupacion() }}%</p>
+
+<div class="d-flex justify-content-center gap-2 mb-3">
+  <button class="btn btn-success" type="button" (click)="ingresarEstudiante()">
+    {{ nombre }} Agregar estudiante
+  </button>
+  <button class="btn btn-danger" type="button" (click)="quitarestudiante()">
+    {{ menos }} Retirar estudiante
+  </button>
+</div>
+
+<div
+  class="barra"
+  role="progressbar"
+  aria-label="Ocupación del laboratorio"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-valuenow]="porcentajeOcupacion()"
+>
+  <div
+    class="progreso"
+    [style.width.%]="porcentajeOcupacion()"
+  ></div>
+  <span class="porcentaje">{{ porcentajeOcupacion() }}%</span>
+</div>
+</div>
