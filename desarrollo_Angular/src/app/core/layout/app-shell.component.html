@@ -1,0 +1,106 @@
+<div class="application-shell">
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+  <aside id="mobile-navigation" class="sidebar" [class.sidebar--open]="menuOpen()" aria-label="Navegación principal">
+    <a class="brand" routerLink="/portal-principal" aria-label="Taller conectado, ir al portal">
+      <span class="brand__mark" aria-hidden="true">T</span>
+      <span class="brand__copy">
+        <strong>Taller conectado</strong>
+        <small>Operación y servicio</small>
+      </span>
+    </a>
+
+    <div class="role-picker">
+      <label for="role-switcher">Perfil de demostración</label>
+      <select id="role-switcher" [value]="currentRole()" (change)="selectRole($event)">
+        <option value="portal">Portal principal</option>
+        @for (role of roleOptions; track role.id) {
+          <option [value]="role.id">{{ role.label }}</option>
+        }
+      </select>
+    </div>
+
+    <p class="navigation-label">ESPACIO DE TRABAJO</p>
+    <nav class="side-navigation" aria-label="Pantallas del perfil actual">
+      @if (currentRole() !== 'portal') {
+        @for (item of currentNavigation(); track item.id) {
+          <a
+            class="navigation-link"
+            [routerLink]="['/', item.id]"
+            routerLinkActive="navigation-link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            (click)="menuOpen.set(false)"
+          >
+            <span class="navigation-link__number" aria-hidden="true">{{ item.order }}</span>
+            <span>{{ item.name }}</span>
+          </a>
+        }
+      } @else {
+        <a class="navigation-link navigation-link--active" routerLink="/portal-principal">
+          <span class="navigation-link__number" aria-hidden="true">01</span>
+          <span>Portal principal</span>
+        </a>
+        @for (role of roleOptions; track role.id) {
+          <a class="navigation-link" [routerLink]="['/', role.dashboard]">
+            <span class="navigation-link__number" aria-hidden="true">↗</span>
+            <span>{{ role.label }}</span>
+          </a>
+        }
+      }
+    </nav>
+
+    <div class="sidebar__footer">
+      <span class="status-indicator" aria-hidden="true"></span>
+      <span>Demostración local</span>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <button
+        class="menu-toggle"
+        type="button"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-navigation"
+        aria-label="Abrir o cerrar navegación"
+        (click)="menuOpen.update((open) => !open)"
+      >
+        <span aria-hidden="true">☰</span>
+      </button>
+      <div class="topbar__context">
+        <span class="topbar__eyebrow">Taller · Gestión integral</span>
+        <strong>{{ currentScreen()?.roleLabel ?? 'Página no encontrada' }}</strong>
+      </div>
+      <div class="topbar__actions">
+        <a class="portal-link" routerLink="/portal-principal">Volver al portal</a>
+        <span class="avatar" aria-label="Perfil de demostración">TD</span>
+      </div>
+    </header>
+
+    <main id="main-content" class="main-content" tabindex="-1">
+      <router-outlet />
+    </main>
+
+    <footer class="workspace-footer">
+      <span>Prototipo Angular · datos de demostración</span>
+      <span>Diseñado para web y móvil</span>
+    </footer>
+  </div>
+
+  @if (menuOpen()) {
+    <button
+      class="sidebar-backdrop"
+      type="button"
+      aria-label="Cerrar navegación"
+      (click)="menuOpen.set(false)"
+    ></button>
+  }
+
+  @if (store.notice()) {
+    <div class="toast" role="status" aria-live="polite">
+      <span>{{ store.notice() }}</span>
+      <button type="button" aria-label="Cerrar aviso" (click)="closeNotice()">×</button>
+    </div>
+  }
+</div>

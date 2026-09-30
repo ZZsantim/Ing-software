@@ -1,0 +1,263 @@
+@if (screen(); as page) {
+  <section class="screen">
+    <div class="breadcrumbs" aria-label="Ruta de navegación">
+      <a routerLink="/portal-principal">Portal</a>
+      <span aria-hidden="true">/</span>
+      <span>{{ page.roleLabel }}</span>
+      @if (page.order > 0) {
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ page.name }}</span>
+      }
+    </div>
+
+    @if (page.kind === 'portal') {
+      <section class="portal-hero" aria-labelledby="page-title">
+        <div class="portal-hero__copy">
+          <p class="eyebrow">GESTIÓN INTEGRAL DEL TALLER</p>
+          <h1 id="page-title">{{ page.title }}</h1>
+          <p class="screen__description">{{ page.description }}</p>
+          <a class="button button--primary" routerLink="/cliente-dashboard">Explorar el portal <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-stamp" aria-hidden="true">
+          <span>TC</span>
+          <span>Revisión · Servicio · Seguimiento</span>
+        </div>
+      </section>
+    } @else {
+      <header class="screen-header">
+        <div>
+          <p class="eyebrow">{{ page.roleLabel }} · {{ page.name }}</p>
+          <h1 id="page-title">{{ page.title }}</h1>
+          <p class="screen__description">{{ page.description }}</p>
+        </div>
+        <app-status-badge status="Demostración local" />
+      </header>
+    }
+
+    @if (page.kind === 'portal') {
+      <section class="section-block" aria-labelledby="profiles-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ACCESOS POR ROL</p>
+            <h2 id="profiles-title">¿Qué necesitas hacer?</h2>
+          </div>
+          <span class="section-heading__note">5 espacios de trabajo · web y móvil</span>
+        </div>
+        <div class="role-grid">
+          @for (role of roles; track role.id; let index = $index) {
+            <a class="role-card" [routerLink]="['/', role.dashboard]">
+              <span class="role-card__number">0{{ index + 1 }}</span>
+              <span class="role-card__arrow" aria-hidden="true">↗</span>
+              <h3>{{ role.label }}</h3>
+              <p>{{ role.description }}</p>
+              <span class="role-card__link">Entrar al espacio <span aria-hidden="true">→</span></span>
+            </a>
+          }
+        </div>
+      </section>
+      @if (page.metrics?.length) {
+        <section class="metric-grid" aria-label="Resumen del portal">
+          @for (metric of page.metrics; track metric.label) {
+            <app-metric-card [metric]="metric" />
+          }
+        </section>
+      }
+      <section class="callout">
+        <div>
+          <p class="eyebrow">UN MISMO RECORRIDO</p>
+          <h2>De la cita al repuesto, con cada equipo en contexto.</h2>
+          <p>Los perfiles comparten un mismo flujo de servicio, desde la reserva hasta el seguimiento y el inventario.</p>
+        </div>
+        <a class="button button--secondary" routerLink="/logistica-dashboard">Ver logística <span aria-hidden="true">→</span></a>
+      </section>
+    } @else {
+      @if (page.metrics?.length) {
+        <section class="metric-grid" aria-label="Indicadores principales">
+          @for (metric of page.metrics; track metric.label) {
+            <app-metric-card [metric]="metric" />
+          }
+        </section>
+      }
+
+      @if (page.kind === 'report') {
+        <section class="panel chart-panel" aria-labelledby="chart-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">ÚLTIMOS SIETE DÍAS</p>
+              <h2 id="chart-title">Servicios completados</h2>
+            </div>
+            <span class="section-heading__note">Datos ilustrativos</span>
+          </div>
+          <div class="chart" role="img" aria-label="Gráfico ilustrativo de servicios completados entre lunes y domingo">
+            @for (bar of chartBars; track bar.day) {
+              <div class="chart__column">
+                <span class="chart__value">{{ bar.value }}</span>
+                <span class="chart__bar" [style.height.%]="bar.value * 9"></span>
+                <span class="chart__day">{{ bar.day }}</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (page.fields?.length) {
+        <section class="panel form-panel" aria-labelledby="form-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">{{ page.kind === 'approval' ? 'VALIDACIÓN OPERATIVA' : 'INFORMACIÓN DEL PROCESO' }}</p>
+              <h2 id="form-title">{{ page.kind === 'checklist' ? 'Lista de inspección' : page.kind === 'upload' ? 'Adjunta la evidencia' : page.title }}</h2>
+            </div>
+            <span class="required-note">* Campo obligatorio</span>
+          </div>
+
+          @if (page.kind === 'approval') {
+            <div class="info-callout">
+              <span class="info-callout__icon" aria-hidden="true">i</span>
+              <p>Confirma la existencia del lote y la sede de destino antes de autorizar su salida.</p>
+            </div>
+          }
+
+          <form class="form-grid" (submit)="submitForm($event)">
+            @for (field of page.fields; track field.id) {
+              <div class="form-field" [class.form-field--wide]="field.type === 'textarea' || field.type === 'file'">
+                <label [for]="field.id">{{ field.label }}@if (field.required) { <span aria-hidden="true"> *</span> }</label>
+                @switch (field.type) {
+                  @case ('select') {
+                    <select [id]="field.id" [name]="field.id" [required]="field.required ?? false">
+                      <option value="" disabled selected>{{ field.placeholder ?? 'Selecciona una opción' }}</option>
+                      @for (option of optionsFor(field); track option) {
+                        <option [value]="option">{{ option }}</option>
+                      }
+                    </select>
+                  }
+                  @case ('textarea') {
+                    <textarea [id]="field.id" [name]="field.id" [required]="field.required ?? false" [placeholder]="field.placeholder ?? 'Escribe aquí'" rows="3"></textarea>
+                  }
+                  @case ('file') {
+                    <input [id]="field.id" [name]="field.id" type="file" accept="image/*" [required]="field.required ?? false">
+                    <span class="field-hint">Formatos de imagen · La selección queda en este navegador</span>
+                  }
+                  @default {
+                    <input [id]="field.id" [name]="field.id" [type]="field.type" [required]="field.required ?? false" [placeholder]="field.placeholder ?? ''" [min]="field.min ?? null">
+                  }
+                }
+              </div>
+            }
+            <div class="form-actions">
+              <button class="button button--primary" type="submit">{{ page.actions?.[0]?.label ?? 'Guardar cambios' }}</button>
+              <button class="button button--secondary" type="reset">Limpiar</button>
+            </div>
+          </form>
+        </section>
+      }
+
+      @if (page.kind === 'timeline') {
+        <section class="panel" aria-labelledby="timeline-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">ESTADO DEL PROCESO</p>
+              <h2 id="timeline-title">Recorrido del servicio</h2>
+            </div>
+            <app-status-badge status="En seguimiento" />
+          </div>
+          <ol class="timeline">
+            @for (item of page.timeline ?? []; track item.title; let last = $last) {
+              <li class="timeline__item" [class.timeline__item--complete]="item.complete">
+                <span class="timeline__marker" aria-hidden="true">{{ item.complete ? '✓' : '' }}</span>
+                @if (!last) { <span class="timeline__line" aria-hidden="true"></span> }
+                <div class="timeline__content">
+                  <div class="timeline__meta">
+                    <h3>{{ item.title }}</h3>
+                    <time>{{ item.date }}</time>
+                  </div>
+                  <p>{{ item.description }}</p>
+                </div>
+              </li>
+            }
+          </ol>
+        </section>
+      }
+
+      @if (page.kind === 'table' || page.kind === 'dashboard' || page.kind === 'detail' || page.kind === 'report') {
+        @if (page.records?.length) {
+          <section class="panel records-panel" aria-labelledby="records-title">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">{{ page.kind === 'detail' ? 'RESUMEN' : 'ACTIVIDAD RECIENTE' }}</p>
+                <h2 id="records-title">{{ page.kind === 'detail' ? 'Información relacionada' : page.kind === 'table' ? page.name : 'Registros recientes' }}</h2>
+              </div>
+              <label class="search-field">
+                <span class="visually-hidden">Buscar registros</span>
+                <span aria-hidden="true">⌕</span>
+                <input type="search" placeholder="Buscar" [value]="searchText()" (input)="onSearch($event)">
+              </label>
+            </div>
+
+            @if (visibleRecords().length) {
+              <div class="record-list">
+                @for (record of visibleRecords(); track record.id) {
+                  <article class="record-row">
+                    <div class="record-row__main">
+                      <h3>{{ record.primary }}</h3>
+                      <p>{{ record.secondary }}</p>
+                      <small>{{ record.detail }}</small>
+                    </div>
+                    <time class="record-row__date">{{ record.date }}</time>
+                    <app-status-badge [status]="record.status" />
+                    @if (recordTarget(); as target) {
+                      <a class="row-action" [routerLink]="['/', target]">{{ recordActionLabel() }} <span aria-hidden="true">→</span></a>
+                    } @else {
+                      <button class="row-action" type="button" (click)="showRecordAction(record)">{{ recordActionLabel() }} <span aria-hidden="true">→</span></button>
+                    }
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <span aria-hidden="true">⌕</span>
+                <h3>No hay coincidencias</h3>
+                <p>Prueba con otro nombre, referencia o estado.</p>
+              </div>
+            }
+          </section>
+        }
+      }
+
+      @if (page.actions?.length && !page.fields?.length) {
+        <section class="action-strip" aria-label="Acciones disponibles">
+          @for (action of page.actions; track action.label) {
+            @if (action.target) {
+              <a
+                class="button"
+                [class.button--primary]="action.variant === 'primary'"
+                [class.button--danger]="action.variant === 'danger'"
+                [class.button--secondary]="action.variant === 'secondary' || action.variant === 'quiet'"
+                [routerLink]="['/', action.target]"
+              >
+                {{ action.label }} <span aria-hidden="true">→</span>
+              </a>
+            } @else {
+              <button
+                class="button"
+                [class.button--primary]="action.variant === 'primary'"
+                [class.button--danger]="action.variant === 'danger'"
+                [class.button--secondary]="action.variant === 'secondary' || action.variant === 'quiet'"
+                type="button"
+                (click)="performAction(action)"
+              >
+                {{ action.label }} <span aria-hidden="true">→</span>
+              </button>
+            }
+          }
+        </section>
+      }
+    }
+  </section>
+} @else {
+  <section class="not-found" aria-labelledby="missing-title">
+    <p class="eyebrow">RUTA NO DISPONIBLE</p>
+    <h1 id="missing-title">No encontramos esa pantalla</h1>
+    <p>Regresa al portal y elige uno de los perfiles disponibles.</p>
+    <a class="button button--primary" routerLink="/portal-principal">Ir al portal</a>
+  </section>
+}
